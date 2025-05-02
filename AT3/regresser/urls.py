@@ -1,4 +1,4 @@
-"""regresser URL Configuration
+"""regressor URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -21,7 +21,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Regresser API",
+        title="Regressor API",
         default_version='v1',
         description="API Documentation",
     ),

@@ -7,8 +7,7 @@ from django.contrib.auth import authenticate
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from .constants import *
-from . import serializers, models
-from datetime import datetime
+from . import serializers, models, regressor
 
 # Create your views here.
 class AuthView(APIView):
@@ -35,7 +34,7 @@ class AuthView(APIView):
 
 
 class PredictionView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary='GET a Prediction by Id',
         responses={
@@ -59,9 +58,31 @@ class PredictionView(APIView):
         prediction_serializer = serializers.PredictionSerializer(prediction)
         return Response(prediction_serializer.data, status=200)
     
+    @swagger_auto_schema(operation_summary='DELETE a Prediction by Id',
+        responses={
+            status.HTTP_200_OK: 'Prediction deleted successfully',
+            status.HTTP_404_NOT_FOUND: 'Prediction not found',
+            status.HTTP_401_UNAUTHORIZED: 'Unauthorized',
+        },
+        manual_parameters=[
+            openapi.Parameter(name=PREDICTION_ID_LABEL,
+                type=openapi.TYPE_INTEGER,
+                description='The id of prediction',
+                required=True,
+                in_=openapi.IN_PATH,
+                example=1,
+            )])
+    def delete(self, request, prediction_id):
+        try:
+            prediction = models.Prediction.objects.get(prediction_id=prediction_id)
+        except models.Prediction.DoesNotExist:
+            return Response({'message': 'prediction not found!'}, status=404)
+        prediction.delete()
+        return Response(status=200)
+
 
 class PerformPredictionView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary='POST a Prediction',
         request_body=openapi.Schema(
@@ -84,16 +105,21 @@ class PerformPredictionView(APIView):
         prediction_serializer = serializers.PredictionSerializer(data=request.data)
         if prediction_serializer.is_valid():
             data = dict(prediction_serializer.validated_data)
-            data['heating_load'] = 10.5
-            data['colding_load'] = 10.5
+
+            features_key = [RELATIVE_COMPACTNESS_LABEL, SURFACE_AREA_LABEL, WALL_AREA_LABEL, ROOF_AREA_LABEL, OVERALL_HEIGHT_LABEL,
+                                ORIENTATION_LABEL, GLAZING_AREA_LABEL]
+            
+            features = [data[key] for key in features_key]
+            data[HEATING_LOAD_LABEL], data[COLDING_LOAD_LABEL] = regressor.RegressorSingleton().predict(features)
             prediction = models.Prediction(**data)
             prediction.save()
             prediction_serializer = serializers.PredictionSerializer(prediction)
             return Response(prediction_serializer.data, status=200)
         return Response({'message': 'invalid prediction json data!'}, status=400)
 
+
 class ListPredictionView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary='List Predictions in a datetime interval',
         responses={
