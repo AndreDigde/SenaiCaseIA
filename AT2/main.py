@@ -34,6 +34,8 @@ logs = []
 
 run_regressions(features, targets, "./raw_data_train_result.csv")
 
+features.drop('X8', axis=1)
+
 for trashold in [2.5, 3]:
     features_cleared, targets_cleared = clear_outliers(features, targets, trashold, logs)
     run_regressions(features, targets, f"./trashold_{f"{trashold}".replace(".", "_")}_train_result.csv")
