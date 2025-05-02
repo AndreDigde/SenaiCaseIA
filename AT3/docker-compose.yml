@@ -2,10 +2,7 @@ version: '3'
 services:
   db:
     image: postgres:13
-    environment:
-      POSTGRES_PASSWORD: abc123456
-      POSTGRES_USER: root
-      POSTGRES_DB: systemb
+    env_file: .env
     ports:
       - "5432:5432"
 
@@ -14,6 +11,6 @@ services:
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
+    env_file: .env
     depends_on:
       - db
-
