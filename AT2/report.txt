@@ -1,2 +1,2 @@
-Outliners removed (trashold 2.5): 58
-Outliners removed (trashold 3): 3
+Outliers removed (trashold 2.5): 58
+Outliers removed (trashold 3): 3

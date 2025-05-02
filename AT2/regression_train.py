@@ -66,6 +66,7 @@ def train_regression(model, train_name, train_index, x_train, x_test, y_train, y
     pred_result = model.predict(x_test)
     mse, rmse, mae, r2 = model_evaluation(pred_result, y_test)
     results.append([f"{train_name}_{train_index}", mse, rmse, mae, r2])
+    return model
 
 
 def run_regressions(features, targets, results_path):
@@ -75,7 +76,7 @@ def run_regressions(features, targets, results_path):
     mlpr_results = []
     rfr_results = []
 
-    for index in range(10):
+    for index in range(100):
         x_train, x_test, y_train, y_test = shuffle_and_split_data(features, targets)
         train_regression(LinearRegression(), _LR_STRING, index, x_train, x_test, y_train, y_test, lr_results)
         train_regression(MultiOutputRegressor(SVR()), _SVR_STRING, index, x_train, x_test, y_train, y_test, svr_results)
