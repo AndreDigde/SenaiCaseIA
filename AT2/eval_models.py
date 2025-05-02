@@ -35,11 +35,12 @@ if __name__ == "__main__":
 
     run_regressions(features, targets, f"{_RESULTS_PATH}/raw_data_train_result.csv")
 
-    features.drop("X8", axis=1)
-
     for trashold in [2.5, 3]:
         features_cleared, targets_cleared = clear_outliers(features, targets, trashold, logs)
         run_regressions(features_cleared, targets_cleared, f"{_RESULTS_PATH}/trashold_{f"{trashold}".replace(".", "_")}_train_result.csv")
+
+        features_cleared = features_cleared.drop("X8", axis=1)
+        run_regressions(features_cleared, targets_cleared, f"{_RESULTS_PATH}/trashold_{f"{trashold}".replace(".", "_")}_drop_x8_train_result.csv")
 
     logs_string = '\r\n'.join(logs)
     with open("report.txt", "w") as file:
