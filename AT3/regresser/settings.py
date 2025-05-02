@@ -35,6 +35,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+MODEL_PATH = os.getenv('MODEL_PATH', '')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

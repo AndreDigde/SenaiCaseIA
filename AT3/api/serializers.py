@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from . import models
 
-class OccurrenceSerializer(serializers.ModelSerializer):
+class PredictionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Occurrence
+        model = models.Prediction
         fields = '__all__'
+        read_only_fields = ['heating_load', 'colding_load']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
