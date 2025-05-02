@@ -95,6 +95,7 @@ class PerformPredictionView(APIView):
                 OVERALL_HEIGHT_LABEL: openapi.Schema(type=openapi.TYPE_NUMBER, description='Overall Height', example=7.0),
                 ORIENTATION_LABEL: openapi.Schema(type=openapi.TYPE_INTEGER, description='Orientation', example=3),
                 GLAZING_AREA_LABEL: openapi.Schema(type=openapi.TYPE_NUMBER, description='Glazing Area', example=0.0),
+                GLAZING_AREA__DIST_LABEL: openapi.Schema(type=openapi.TYPE_INTEGER, description='Glazing Area Distribution', example=0),
                 }),
         responses={
                 status.HTTP_200_OK: 'Prediction saved',
@@ -107,7 +108,7 @@ class PerformPredictionView(APIView):
             data = dict(prediction_serializer.validated_data)
 
             features_key = [RELATIVE_COMPACTNESS_LABEL, SURFACE_AREA_LABEL, WALL_AREA_LABEL, ROOF_AREA_LABEL, OVERALL_HEIGHT_LABEL,
-                                ORIENTATION_LABEL, GLAZING_AREA_LABEL]
+                                ORIENTATION_LABEL, GLAZING_AREA_LABEL, GLAZING_AREA__DIST_LABEL]
             
             features = [data[key] for key in features_key]
             data[HEATING_LOAD_LABEL], data[COLDING_LOAD_LABEL] = regressor.RegressorSingleton().predict(features)
@@ -134,6 +135,7 @@ class ListPredictionView(APIView):
             openapi.Parameter(name=OVERALL_HEIGHT_LABEL, in_=openapi.IN_QUERY, type=openapi.TYPE_NUMBER, required=False),
             openapi.Parameter(name=ORIENTATION_LABEL, in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER, required=False),
             openapi.Parameter(name=GLAZING_AREA_LABEL, in_=openapi.IN_QUERY, type=openapi.TYPE_NUMBER, required=False),
+            openapi.Parameter(name=GLAZING_AREA__DIST_LABEL, in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER, required=False),
             openapi.Parameter(name=HEATING_LOAD_LABEL, in_=openapi.IN_QUERY, type=openapi.TYPE_NUMBER, required=False),
             openapi.Parameter(name=COLDING_LOAD_LABEL, in_=openapi.IN_QUERY, type=openapi.TYPE_NUMBER, required=False),
             ])
@@ -142,7 +144,7 @@ class ListPredictionView(APIView):
         query_params = request.query_params
 
         filter_fields = [ RELATIVE_COMPACTNESS_LABEL, SURFACE_AREA_LABEL, WALL_AREA_LABEL, ROOF_AREA_LABEL, OVERALL_HEIGHT_LABEL,
-                            ORIENTATION_LABEL, GLAZING_AREA_LABEL, HEATING_LOAD_LABEL, COLDING_LOAD_LABEL,]
+                            ORIENTATION_LABEL, GLAZING_AREA_LABEL, GLAZING_AREA__DIST_LABEL, HEATING_LOAD_LABEL, COLDING_LOAD_LABEL]
 
         for field in filter_fields:
             value = query_params.get(field)

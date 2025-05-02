@@ -11,6 +11,7 @@ class Prediction(models.Model):
     overall_height = models.FloatField()
     orientation = models.IntegerField()
     glazing_area = models.FloatField()
+    glazing_area_distribution = models.IntegerField()
     heating_load = models.FloatField()
     colding_load = models.FloatField()
 
