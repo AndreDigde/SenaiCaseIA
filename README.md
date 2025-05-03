@@ -10,9 +10,9 @@ Em AT1 existe somente um script de nome `first_analysis.py`, no qual plota gráf
 
 ## AT2 ##
 
-No diretório AT2 contém 3 scripts. O `regression_train.py` é um arquivo somente para ser importado, nele há métodos para embaralhar os dados e separar entre treino e teste, treinar regressões em lote, avaliar o resultado dos treinos, calcular o desempenho dos modelos e salvar os dados em `csv`. São os modelos implementados no script `LinearRegression`, `SVR`, `GaussianProcessRegressor`, `MultiOutputRegressor`, `MLPRegressor` e `RandomForestRegressor`.
+No diretório AT2 contém 3 scripts. O `regression_train.py` é um arquivo somente para ser importado, nele há métodos para remover outliers dos dados com o método Z-score, embaralhar os dados e separar entre treino e teste, treinar regressões em lote, avaliar o resultado dos treinos, calcular o desempenho dos modelos e salvar os resultados em `csv`. São os modelos implementados no script `LinearRegression`, `SVR`, `GaussianProcessRegressor`, `MLPRegressor` e `RandomForestRegressor`. Também há uma função para remover dados outliers com o método Z-score.
 
-O script `eval_models.py`, normaliza os dados, monta os lotes de treino e executa os treinamentos. Nele há uma função para remover dados outliers com o método Z-score. Para executar o scritp, bastar utilizar o comando abaixo:
+O script `eval_models.py` monta os lotes de treino, e automatiza o treinamento e avaliação dos modelos. Para executar o scritp, bastar utilizar o comando abaixo:
 
 `python eval_models.py`
 
