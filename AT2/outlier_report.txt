@@ -1,0 +1,2 @@
+Outliers removed (threshold 2.5): 58
+Outliers removed (threshold 3): 3

@@ -1,47 +1,29 @@
 from ucimlrepo import fetch_ucirepo
-from regression_train import run_regressions
+from regression_train import run_regressions, clear_outliers
 from scipy.stats import zscore
 
 
 _RESULTS_PATH = "./results"
 
+energy_efficiency = fetch_ucirepo(id=242) 
+features = energy_efficiency.data.features 
+targets = energy_efficiency.data.targets
+iterations = 100
+logs = []
 
-def clear_outliers(features, targets, zsc_trashold, logs):
-    rows_to_remove = set()
+run_regressions(features, targets, f"{_RESULTS_PATH}/raw_data_train_result.csv", iterations)
+run_regressions(features.drop("X1", axis=1), targets, f"{_RESULTS_PATH}/drop_x1_train_result.csv", iterations)
+run_regressions(features.drop("X6", axis=1), targets, f"{_RESULTS_PATH}/drop_x6_train_result.csv", iterations)
+run_regressions(features.drop("X8", axis=1), targets, f"{_RESULTS_PATH}/drop_x8_train_result.csv", iterations)
 
-    for feature in features:
-        for value in features[feature].unique():
-            rows_mask = features[feature] == value
-            filtered_indices = features[rows_mask].index
+for threshold in [2.5, 3]:
+    features_cleared, targets_cleared, outliers_report = clear_outliers(features, targets, threshold)
+    logs.append(outliers_report)
+    run_regressions(features_cleared, targets_cleared, f"{_RESULTS_PATH}/threshold_{f"{threshold}".replace(".", "_")}_train_result.csv", iterations)
+    run_regressions(features_cleared.drop("X1", axis=1), targets_cleared, f"{_RESULTS_PATH}/threshold_{f"{threshold}".replace(".", "_")}_drop_x1_train_result.csv", iterations)
+    run_regressions(features_cleared.drop("X6", axis=1), targets_cleared, f"{_RESULTS_PATH}/threshold_{f"{threshold}".replace(".", "_")}_drop_x6_train_result.csv", iterations)
+    run_regressions(features_cleared.drop("X8", axis=1), targets_cleared, f"{_RESULTS_PATH}/threshold_{f"{threshold}".replace(".", "_")}_drop_x8_train_result.csv", iterations)
 
-            for target_i in range(2):
-                target_values = targets.iloc[filtered_indices, target_i]
-                zsc = zscore(target_values)
-
-                for i, z in enumerate(zsc):
-                    if abs(z) > zsc_trashold: 
-                        outlier_index = filtered_indices[i]
-                        rows_to_remove.add(outlier_index)
-
-    log = f"Outliers removed (trashold {zsc_trashold}): {len(rows_to_remove)}"
-    logs.append(log)
-    return features.drop(index=rows_to_remove), targets.drop(index=rows_to_remove)
-
-if __name__ == "__main__":
-    energy_efficiency = fetch_ucirepo(id=242) 
-    features = energy_efficiency.data.features 
-    targets = energy_efficiency.data.targets
-    logs = []
-
-    run_regressions(features, targets, f"{_RESULTS_PATH}/raw_data_train_result.csv")
-
-    for trashold in [2.5, 3]:
-        features_cleared, targets_cleared = clear_outliers(features, targets, trashold, logs)
-        run_regressions(features_cleared, targets_cleared, f"{_RESULTS_PATH}/trashold_{f"{trashold}".replace(".", "_")}_train_result.csv")
-
-        features_cleared = features_cleared.drop("X8", axis=1)
-        run_regressions(features_cleared, targets_cleared, f"{_RESULTS_PATH}/trashold_{f"{trashold}".replace(".", "_")}_drop_x8_train_result.csv")
-
-    logs_string = '\r\n'.join(logs)
-    with open("report.txt", "w") as file:
-            file.write(logs_string)
+logs_string = "\r\n".join(logs)
+with open("outlier_report.txt", "w") as file:
+        file.write(logs_string)

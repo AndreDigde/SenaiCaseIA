@@ -6,6 +6,7 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from scipy.stats import zscore
 import numpy as np
 import os
 
@@ -16,6 +17,28 @@ _SVR_STRING = "SVR"
 _GPR_STRING = "GaussianProcessRegressor"
 _MLPR_STRING = "MLPRegressor"
 _RFR_STRING = "RandomForestRegressor"
+
+
+def clear_outliers(features, targets, zsc_threshold):
+    rows_to_remove = set()
+
+    for feature in features:
+        for value in features[feature].unique():
+            rows_mask = features[feature] == value
+            filtered_indices = features[rows_mask].index
+
+            for target_i in range(2):
+                target_values = targets.iloc[filtered_indices, target_i]
+                zsc = zscore(target_values)
+
+                for i, z in enumerate(zsc):
+                    if abs(z) > zsc_threshold: 
+                        outlier_index = filtered_indices[i]
+                        rows_to_remove.add(outlier_index)
+
+    log = f"Outliers removed (threshold {zsc_threshold}): {len(rows_to_remove)}"
+    return features.drop(index=rows_to_remove), targets.drop(index=rows_to_remove), log
+
 
 def shuffle_and_split_data(features, targets):
     return train_test_split(features, targets, test_size=0.2, shuffle=True)
@@ -69,14 +92,14 @@ def train_regression(model, train_name, train_index, x_train, x_test, y_train, y
     return model
 
 
-def run_regressions(features, targets, results_path):
+def run_regressions(features, targets, results_path, iterations):
     lr_results = []
     svr_results = []
     gpr_results = []
     mlpr_results = []
     rfr_results = []
 
-    for index in range(100):
+    for index in range(iterations):
         x_train, x_test, y_train, y_test = shuffle_and_split_data(features, targets)
         train_regression(LinearRegression(), _LR_STRING, index, x_train, x_test, y_train, y_test, lr_results)
         train_regression(MultiOutputRegressor(SVR()), _SVR_STRING, index, x_train, x_test, y_train, y_test, svr_results)
