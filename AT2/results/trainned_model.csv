@@ -1,0 +1,2 @@
+train_label, mse, rmse, mae, r2
+trainned_model_0,0.69571,0.83409,0.54766,0.99299
