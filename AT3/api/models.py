@@ -17,5 +17,10 @@ class Prediction(models.Model):
 
 
 class User(AbstractUser):
-    REQUIRED_FIELDS = ['password']
+    username = models.EmailField(unique=True, blank=False, default="mail@mail.com")
+    email = models.EmailField(unique=True, blank=False, default="mail@mail.com")
+    full_name = models.CharField(max_length=150, blank=False)
+    phone = models.CharField(max_length=15, blank=False)
+
     USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['full_name', 'phone', 'email']
